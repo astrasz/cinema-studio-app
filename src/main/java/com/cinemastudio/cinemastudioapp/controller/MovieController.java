@@ -1,18 +1,21 @@
 package com.cinemastudio.cinemastudioapp.controller;
 
+import com.cinemastudio.cinemastudioapp.dto.MovieRequest;
 import com.cinemastudio.cinemastudioapp.dto.MovieResponse;
 import com.cinemastudio.cinemastudioapp.service.MovieService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/movies")
-public class MovieController implements ApiController{
+public class MovieController implements ApiController<MovieRequest, MovieResponse> {
 
     private final MovieService movieService;
 
@@ -22,19 +25,31 @@ public class MovieController implements ApiController{
     }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    @Transactional(readOnly = true)
     @Override
-    public List<MovieResponse> getAll() {
-        return movieService.getAll();
+    public ResponseEntity<List<MovieResponse>> getAll() {
+        return ResponseEntity.ok(movieService.getAll());
+    }
+
+    @GetMapping("/{movieId}")
+    @Transactional(readOnly = true)
+    @Override
+    public ResponseEntity<MovieResponse> getOneById(@PathVariable final String movieId) {
+        return ResponseEntity.ok(movieService.getOneById(movieId));
     }
 
     @Override
-    public Optional<MovieResponse> getOneById() {
+    public ResponseEntity<MovieResponse> update() {
         return null;
     }
 
+    @PostMapping
+    @Transactional
+    @ResponseStatus(HttpStatus.CREATED)
     @Override
-    public Optional<MovieResponse> update() {
-        return null;
+    public void create(@Valid @RequestBody final MovieRequest movieRequest) {
+        movieService.create(movieRequest);
     }
 
     @Override
