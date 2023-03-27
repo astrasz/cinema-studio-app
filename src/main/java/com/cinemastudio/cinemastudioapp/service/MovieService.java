@@ -2,6 +2,7 @@ package com.cinemastudio.cinemastudioapp.service;
 
 import com.cinemastudio.cinemastudioapp.dto.MovieRequest;
 import com.cinemastudio.cinemastudioapp.dto.MovieResponse;
+import com.cinemastudio.cinemastudioapp.exception.ResourceNofFoundException;
 import com.cinemastudio.cinemastudioapp.model.Movie;
 import com.cinemastudio.cinemastudioapp.model.ShowTime;
 import com.cinemastudio.cinemastudioapp.repository.MovieRepository;
@@ -33,7 +34,7 @@ public class MovieService {
     }
 
     public MovieResponse getOneById(String movieId) {
-        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new NoSuchElementException("Movie cannot be found"));
+        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", movieId));
 
         System.out.println(movie.toString());
 
