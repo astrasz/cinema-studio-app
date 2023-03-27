@@ -1,9 +1,13 @@
 package com.cinemastudio.cinemastudioapp.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Data;
 
 import java.util.List;
 
+@Builder
+@Data
 @Entity
 @Table(name = "seats")
 public class Seat {

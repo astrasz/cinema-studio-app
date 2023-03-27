@@ -1,11 +1,13 @@
 package com.cinemastudio.cinemastudioapp.service;
 
+import com.cinemastudio.cinemastudioapp.dto.SeatRequest;
 import com.cinemastudio.cinemastudioapp.dto.ShowTimeRequest;
 import com.cinemastudio.cinemastudioapp.dto.ShowTimeResponse;
 import com.cinemastudio.cinemastudioapp.exception.ResourceNofFoundException;
-import com.cinemastudio.cinemastudioapp.model.Movie;
-import com.cinemastudio.cinemastudioapp.model.ShowTime;
+import com.cinemastudio.cinemastudioapp.model.*;
+import com.cinemastudio.cinemastudioapp.repository.HallRepository;
 import com.cinemastudio.cinemastudioapp.repository.MovieRepository;
+import com.cinemastudio.cinemastudioapp.repository.SeatRepository;
 import com.cinemastudio.cinemastudioapp.repository.ShowTimeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,10 +30,15 @@ public class ShowTimeService {
     @Autowired
     private final MovieRepository movieRepository;
 
+
     @Autowired
-    public ShowTimeService(ShowTimeRepository showTimeRepository, MovieRepository movieRepository) {
+    private final SeatService seatService;
+
+    @Autowired
+    public ShowTimeService(ShowTimeRepository showTimeRepository, MovieRepository movieRepository, SeatService seatService) {
         this.showTimeRepository = showTimeRepository;
         this.movieRepository = movieRepository;
+        this.seatService = seatService;
     }
 
     @Transactional(readOnly = true)
@@ -58,13 +65,12 @@ public class ShowTimeService {
 
     @Transactional
     public ShowTimeResponse create(ShowTimeRequest showTimeRequest) {
+        Movie movie = movieRepository.findById(showTimeRequest.getMovieId()).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", showTimeRequest.getMovieId()));
+
         ShowTime showTime = ShowTime.builder()
                 .date(showTimeRequest.getDate())
+                .movie(movie)
                 .build();
-        if (showTimeRequest.getMovieId() != null) {
-            Movie movie = movieRepository.findById(showTimeRequest.getMovieId()).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", showTimeRequest.getMovieId()));
-            showTime.setMovie(movie);
-        }
 
         showTimeRepository.save(showTime);
         return mapToShowTimeResponse(showTime);
@@ -77,6 +83,14 @@ public class ShowTimeService {
         showTimeRepository.delete(showTime);
         return String.format("Cinema show time %s has been deleted successfully", showTime.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 
+    }
+
+    @Transactional
+    public ShowTimeResponse setSeats(SeatRequest seatRequest, String showTimeId) {
+        showTimeRepository.findById(showTimeId).orElseThrow(() -> new ResourceNofFoundException(ShowTime.class.getSimpleName(), "id", seatRequest.getShowTimeId()));
+
+        ShowTime showTime = seatService.createMany(seatRequest);
+        return mapToShowTimeResponse(showTime);
     }
 
     private ShowTimeResponse mapToShowTimeResponse(ShowTime showTime) {

@@ -1,5 +1,6 @@
 package com.cinemastudio.cinemastudioapp.controller;
 
+import com.cinemastudio.cinemastudioapp.dto.SeatRequest;
 import com.cinemastudio.cinemastudioapp.dto.ShowTimeRequest;
 import com.cinemastudio.cinemastudioapp.dto.ShowTimeResponse;
 import com.cinemastudio.cinemastudioapp.service.ShowTimeService;
@@ -51,5 +52,10 @@ public class ShowTimeController implements ApiController<ShowTimeRequest, ShowTi
     @Override
     public ResponseEntity<String> remove(@PathVariable String showTimeId) {
         return ResponseEntity.ok(showTimeService.remove(showTimeId));
+    }
+
+    @PostMapping("/{showTimeId}/seats")
+    public ResponseEntity<ShowTimeResponse> setSeats(@Valid @RequestBody SeatRequest seatRequest, @PathVariable String showTimeId) {
+        return ResponseEntity.ok(showTimeService.setSeats(seatRequest, showTimeId));
     }
 }

@@ -3,12 +3,10 @@ package com.cinemastudio.cinemastudioapp.dto;
 import com.cinemastudio.cinemastudioapp.model.Movie;
 import com.cinemastudio.cinemastudioapp.model.Seat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 
