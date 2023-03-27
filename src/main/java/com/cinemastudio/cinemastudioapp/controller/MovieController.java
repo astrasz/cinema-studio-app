@@ -24,15 +24,15 @@ public class MovieController implements ApiController<MovieRequest, MovieRespons
 
     @GetMapping
     @Override
-    public ResponseEntity<List<MovieResponse>> getAll() {
-        return ResponseEntity.ok(movieService.getAll());
+    public ResponseEntity<List<MovieResponse>> getAll(
+            @RequestParam Integer pageNr,
+            @RequestParam Integer number,
+            @RequestParam String sortBy,
+            @RequestParam String sortDir
+    ) {
+        return ResponseEntity.ok(movieService.getAll(pageNr, number, sortBy, sortDir));
     }
 
-    @GetMapping
-    @Override
-    public ResponseEntity<List<MovieResponse>> getAll(Integer pageNr, Integer number, String sortBy, String sortDir) {
-        return null;
-    }
 
     @GetMapping("/{movieId}")
     @Override

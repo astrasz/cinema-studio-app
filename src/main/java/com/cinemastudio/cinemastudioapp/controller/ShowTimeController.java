@@ -6,7 +6,6 @@ import com.cinemastudio.cinemastudioapp.service.ShowTimeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,11 +28,6 @@ public class ShowTimeController implements ApiController<ShowTimeRequest, ShowTi
             @RequestParam String sortBy,
             @RequestParam String sortDir) {
         return ResponseEntity.ok(showTimeService.getAll(pageNr, number, sortBy, sortDir));
-    }
-
-    @Override
-    public ResponseEntity<List<ShowTimeResponse>> getAll() {
-        return null;
     }
 
     @GetMapping("/{showTimeId}")

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ApiController<T, V> {
-    ResponseEntity<List<V>> getAll();
+//    ResponseEntity<List<V>> getAll();
 
     ResponseEntity<List<V>> getAll(@RequestParam Integer pageNr,
                                    @RequestParam Integer number,

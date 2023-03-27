@@ -10,6 +10,10 @@ import com.cinemastudio.cinemastudioapp.repository.ShowTimeRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +37,17 @@ public class MovieService {
     }
 
     @Transactional(readOnly = true)
-    public List<MovieResponse> getAll() {
-        List<Movie> movieList = movieRepository.findAll();
+    public List<MovieResponse> getAll(Integer pageNr, Integer number, String sortBy, String sortDir) {
+
+        int page = pageNr != null ? pageNr : 1;
+        int limit = number != null ? number : 10;
+        String by = sortBy != null ? sortBy : "date";
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(by).ascending() : Sort.by(by).descending();
+
+        Pageable pageable = PageRequest.of(page, limit, sort);
+        Page<Movie> showTimes = movieRepository.findAll(pageable);
+        
+        List<Movie> movieList = showTimes.getContent();
         return movieList.stream().map(this::mapToMovieResponse).toList();
     }
 
