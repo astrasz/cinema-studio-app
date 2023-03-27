@@ -112,7 +112,7 @@ public class MovieService {
             }
 
             if (shouldShowTimesUpdate) {
-                List<ShowTime> newShowTimeList = showTimeRepository.findAllByDates(movieRequestShowTimeDates);
+                List<ShowTime> newShowTimeList = showTimeRepository.findAllByDate(movieRequestShowTimeDates);
                 movie.setShowTimes(newShowTimeList);
             }
         }
