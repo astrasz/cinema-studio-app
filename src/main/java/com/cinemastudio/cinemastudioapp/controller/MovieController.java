@@ -28,6 +28,12 @@ public class MovieController implements ApiController<MovieRequest, MovieRespons
         return ResponseEntity.ok(movieService.getAll());
     }
 
+    @GetMapping
+    @Override
+    public ResponseEntity<List<MovieResponse>> getAll(Integer pageNr, Integer number, String sortBy, String sortDir) {
+        return null;
+    }
+
     @GetMapping("/{movieId}")
     @Override
     public ResponseEntity<MovieResponse> getOneById(@PathVariable final String movieId) {

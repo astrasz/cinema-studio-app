@@ -81,6 +81,7 @@ public class MovieService {
         return mapToMovieResponse(updatedShowTimeMovie);
     }
 
+    @Transactional
     public String remove(String id) {
         Movie movie = movieRepository.findById(id).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", id));
 
@@ -119,7 +120,6 @@ public class MovieService {
 
         return movie;
     }
-
 
     private MovieResponse mapToMovieResponse(Movie movie) {
         return MovieResponse.builder()
