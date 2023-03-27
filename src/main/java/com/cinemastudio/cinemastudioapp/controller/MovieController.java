@@ -7,11 +7,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/movies")
@@ -25,35 +23,33 @@ public class MovieController implements ApiController<MovieRequest, MovieRespons
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    @Transactional(readOnly = true)
     @Override
     public ResponseEntity<List<MovieResponse>> getAll() {
         return ResponseEntity.ok(movieService.getAll());
     }
 
     @GetMapping("/{movieId}")
-    @Transactional(readOnly = true)
     @Override
     public ResponseEntity<MovieResponse> getOneById(@PathVariable final String movieId) {
         return ResponseEntity.ok(movieService.getOneById(movieId));
     }
 
+    @PutMapping("/{movieId}")
     @Override
-    public ResponseEntity<MovieResponse> update() {
-        return null;
+    public ResponseEntity<MovieResponse> update(@PathVariable final String movieId, @RequestBody final MovieRequest movieRequest) {
+        return ResponseEntity.ok(movieService.update(movieId, movieRequest));
     }
 
     @PostMapping
-    @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     @Override
-    public void create(@Valid @RequestBody final MovieRequest movieRequest) {
-        movieService.create(movieRequest);
+    public ResponseEntity<MovieResponse> create(@Valid @RequestBody final MovieRequest movieRequest) {
+        return new ResponseEntity<>(movieService.create(movieRequest), HttpStatus.CREATED);
     }
 
+    @DeleteMapping("/{movieId}")
     @Override
-    public void remove() {
-
+    public ResponseEntity<String> remove(@PathVariable final String movieId) {
+        return ResponseEntity.ok(movieService.remove(movieId));
     }
 }

@@ -16,9 +16,9 @@ public interface ApiController<T, V> {
 
     ResponseEntity<V> getOneById(@PathVariable final String id);
 
-    ResponseEntity<V> update();
+    ResponseEntity<V> update(@PathVariable final String id, @RequestBody final T request);
 
-    void create(@RequestBody final T request);
+    ResponseEntity<V> create(@RequestBody final T request);
 
-    void remove();
+    ResponseEntity<String> remove(@PathVariable final String id);
 }

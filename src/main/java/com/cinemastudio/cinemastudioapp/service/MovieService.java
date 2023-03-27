@@ -6,13 +6,15 @@ import com.cinemastudio.cinemastudioapp.exception.ResourceNofFoundException;
 import com.cinemastudio.cinemastudioapp.model.Movie;
 import com.cinemastudio.cinemastudioapp.model.ShowTime;
 import com.cinemastudio.cinemastudioapp.repository.MovieRepository;
+import com.cinemastudio.cinemastudioapp.repository.ShowTimeRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @Slf4j
@@ -20,19 +22,23 @@ public class MovieService {
 
 
     private final MovieRepository movieRepository;
+    private final ShowTimeRepository showTimeRepository;
     private final ObjectMapper mapper;
 
     @Autowired
-    public MovieService(MovieRepository movieRepository, ObjectMapper mapper) {
+    public MovieService(MovieRepository movieRepository, ObjectMapper mapper, ShowTimeRepository showTimeRepository) {
         this.movieRepository = movieRepository;
         this.mapper = mapper;
+        this.showTimeRepository = showTimeRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<MovieResponse> getAll() {
         List<Movie> movieList = movieRepository.findAll();
         return movieList.stream().map(this::mapToMovieResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     public MovieResponse getOneById(String movieId) {
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", movieId));
 
@@ -41,7 +47,8 @@ public class MovieService {
         return mapper.convertValue(movie, MovieResponse.class);
     }
 
-    public void create(MovieRequest movieRequest) {
+    @Transactional
+    public MovieResponse create(MovieRequest movieRequest) {
         Movie movie = Movie.builder()
                 .title(movieRequest.getTitle())
                 .country(movieRequest.getCountry())
@@ -52,7 +59,67 @@ public class MovieService {
 
         movieRepository.save(movie);
         log.info("Movie {} has been saved successfully", movie.getTitle());
+        return mapToMovieResponse(movie);
     }
+
+    @Transactional
+    public MovieResponse update(String id, MovieRequest movieRequest) {
+
+        Movie movie = movieRepository.findById(id).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", id));
+
+
+        movie.setTitle(movieRequest.getTitle());
+        movie.setDirector(movieRequest.getDirector());
+        movie.setCountry(movieRequest.getCountry());
+        movie.setMinutes(movieRequest.getMinutes());
+        movie.setPremiere(movieRequest.getPremiere());
+
+        Movie updatedShowTimeMovie = updateShowTimes(movie, movieRequest);
+
+        movieRepository.save(updatedShowTimeMovie);
+
+        return mapToMovieResponse(updatedShowTimeMovie);
+    }
+
+    public String remove(String id) {
+        Movie movie = movieRepository.findById(id).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", id));
+
+        String title = movie.getTitle();
+
+        movieRepository.delete(movie);
+        return String.format("Movie %s has been deleted successfully", title);
+    }
+
+    private Movie updateShowTimes(Movie movie, MovieRequest movieRequest) {
+        List<ShowTime> showTimeList = movie.getShowTimes();
+        List<Date> showTimeDates = showTimeList.stream().map(ShowTime::getDate).toList();
+        List<Date> movieRequestShowTimeDates = movieRequest.getShowTimes();
+
+        if (showTimeDates.size() > 0 || movieRequestShowTimeDates.size() > 0) {
+            boolean shouldShowTimesUpdate = false;
+            for (Date date : showTimeDates) {
+                if (!movieRequestShowTimeDates.contains(date)) {
+                    shouldShowTimesUpdate = true;
+                    break;
+                }
+            }
+
+            for (Date mrDate : movieRequestShowTimeDates) {
+                if (!showTimeDates.contains(mrDate)) {
+                    shouldShowTimesUpdate = true;
+                    break;
+                }
+            }
+
+            if (shouldShowTimesUpdate) {
+                List<ShowTime> newShowTimeList = showTimeRepository.findAllByDates(movieRequestShowTimeDates);
+                movie.setShowTimes(newShowTimeList);
+            }
+        }
+
+        return movie;
+    }
+
 
     private MovieResponse mapToMovieResponse(Movie movie) {
         return MovieResponse.builder()

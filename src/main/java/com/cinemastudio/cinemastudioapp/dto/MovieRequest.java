@@ -23,4 +23,6 @@ public class MovieRequest {
     private String country;
 
     private Date premiere;
+
+    private List<Date> showTimes;
 }
