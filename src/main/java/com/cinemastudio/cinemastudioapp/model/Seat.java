@@ -13,19 +13,19 @@ public class Seat {
     private String id;
 
     @ManyToOne
-    @JoinColumn(name = "hall_id", referencedColumnName = "id")
+    @JoinColumn(name = "hall_id", referencedColumnName = "id", nullable = false)
     private Hall hall;
 
     @ManyToOne
-    @JoinColumn(name = "row_id", referencedColumnName = "id")
+    @JoinColumn(name = "row_id", referencedColumnName = "id", nullable = false)
     private Row row;
 
     @ManyToOne
-    @JoinColumn(name = "chair_id", referencedColumnName = "id")
+    @JoinColumn(name = "chair_id", referencedColumnName = "id", nullable = false)
     private Chair chair;
 
     @ManyToOne
-    @JoinColumn(name = "show_time_id", referencedColumnName = "id")
+    @JoinColumn(name = "show_time_id", referencedColumnName = "id", nullable = false)
     private ShowTime showTime;
 
 

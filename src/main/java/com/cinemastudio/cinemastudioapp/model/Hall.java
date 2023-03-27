@@ -1,9 +1,11 @@
 package com.cinemastudio.cinemastudioapp.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.List;
 
+@Data
 @Entity
 @Table(name = "halls")
 public class Hall {
@@ -11,20 +13,16 @@ public class Hall {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToMany
-    @JoinTable(name = "halls_rows",
-            joinColumns = @JoinColumn(name = "hall_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "row_id", referencedColumnName = "id")
-    )
+    @Column(name = "row_number", nullable = false)
+    private int rowNumber;
+
+    @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Row> rows;
 
-    @ManyToMany
-    @JoinTable(name = "halls_chairs",
-            joinColumns = @JoinColumn(name = "hall_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "char_id", referencedColumnName = "id")
-    )
+    @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chair> chairs;
 
     @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
