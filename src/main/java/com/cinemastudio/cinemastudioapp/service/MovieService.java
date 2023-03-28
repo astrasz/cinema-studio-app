@@ -17,8 +17,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -46,7 +46,7 @@ public class MovieService {
 
         Pageable pageable = PageRequest.of(page, limit, sort);
         Page<Movie> showTimes = movieRepository.findAll(pageable);
-        
+
         List<Movie> movieList = showTimes.getContent();
         return movieList.stream().map(this::mapToMovieResponse).toList();
     }
@@ -54,9 +54,6 @@ public class MovieService {
     @Transactional(readOnly = true)
     public MovieResponse getOneById(String movieId) {
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", movieId));
-
-        System.out.println(movie.toString());
-
         return mapper.convertValue(movie, MovieResponse.class);
     }
 
@@ -71,15 +68,12 @@ public class MovieService {
                 .build();
 
         movieRepository.save(movie);
-        log.info("Movie {} has been saved successfully", movie.getTitle());
         return mapToMovieResponse(movie);
     }
 
     @Transactional
     public MovieResponse update(String id, MovieRequest movieRequest) {
-
         Movie movie = movieRepository.findById(id).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", id));
-
 
         movie.setTitle(movieRequest.getTitle());
         movie.setDirector(movieRequest.getDirector());
@@ -88,7 +82,6 @@ public class MovieService {
         movie.setPremiere(movieRequest.getPremiere());
 
         Movie updatedShowTimeMovie = updateShowTimes(movie, movieRequest);
-
         movieRepository.save(updatedShowTimeMovie);
 
         return mapToMovieResponse(updatedShowTimeMovie);
@@ -97,7 +90,6 @@ public class MovieService {
     @Transactional
     public String remove(String id) {
         Movie movie = movieRepository.findById(id).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", id));
-
         String title = movie.getTitle();
 
         movieRepository.delete(movie);
@@ -105,33 +97,73 @@ public class MovieService {
     }
 
     private Movie updateShowTimes(Movie movie, MovieRequest movieRequest) {
-        List<ShowTime> showTimeList = movie.getShowTimes();
-        List<Date> showTimeDates = showTimeList.stream().map(ShowTime::getDate).toList();
-        List<Date> movieRequestShowTimeDates = movieRequest.getShowTimes();
 
-        if (showTimeDates.size() > 0 || movieRequestShowTimeDates.size() > 0) {
-            boolean shouldShowTimesUpdate = false;
-            for (Date date : showTimeDates) {
-                if (!movieRequestShowTimeDates.contains(date)) {
-                    shouldShowTimesUpdate = true;
-                    break;
-                }
-            }
+        Optional<Map<Integer, List<Date>>> showTimesDatesLists = returnMapOfDatesListOrNothingToUpdate(movie, movieRequest);
 
-            for (Date mrDate : movieRequestShowTimeDates) {
-                if (!showTimeDates.contains(mrDate)) {
-                    shouldShowTimesUpdate = true;
-                    break;
-                }
-            }
+        if (showTimesDatesLists != null && showTimesDatesLists.isPresent()) {
+            List<Date> showTimeDates = showTimesDatesLists.get().get(1);
+            List<Date> movieRequestShowTimeDates = showTimesDatesLists.get().get(2);
 
-            if (shouldShowTimesUpdate) {
-                List<ShowTime> newShowTimeList = showTimeRepository.findAllByDate(movieRequestShowTimeDates);
-                movie.setShowTimes(newShowTimeList);
+            Map<Integer, List<Date>> datesListsToUpdate = prepareShowTimesDatesListsToUpdate(showTimeDates, movieRequestShowTimeDates);
+
+            return updateMovieShowTimes(movie, datesListsToUpdate.get(1), datesListsToUpdate.get(2));
+        }
+        return movie;
+    }
+
+    private Map<Integer, List<Date>> prepareShowTimesDatesListsToUpdate(List<Date> showTimeDates, List<Date> movieRequestShowTimeDates) {
+
+        List<Date> showTimeDatesToRemove = new ArrayList<Date>();
+        List<Date> showTimesDatesToAdd = new ArrayList<Date>();
+
+        for (Date date : showTimeDates) {
+            if (!movieRequestShowTimeDates.contains(date)) {
+                showTimeDatesToRemove.add(date);
             }
         }
 
+        for (Date mrDate : movieRequestShowTimeDates) {
+            if (!showTimeDates.contains(mrDate)) {
+                showTimesDatesToAdd.add(mrDate);
+            }
+        }
+        HashMap<Integer, List<Date>> data = new HashMap<Integer, List<Date>>();
+        data.put(1, showTimeDatesToRemove);
+        data.put(2, showTimesDatesToAdd);
+
+        return data;
+    }
+
+    private Movie updateMovieShowTimes(Movie movie, List<Date> showTimeDatesToRemove, List<Date> showTimesDatesToAdd) {
+        movie.getShowTimes().forEach(showTime ->
+        {
+            if (showTimeDatesToRemove.contains(showTime.getDate())) {
+                movie.getShowTimes().remove(showTime);
+                showTimeRepository.delete(showTime);
+            }
+            ;
+        });
+
+        for (Date dateToAdd : showTimesDatesToAdd) {
+            showTimeRepository.save(ShowTime.builder().date(dateToAdd).movie(movie).build());
+        }
+        movieRepository.save(movie);
         return movie;
+    }
+
+    private Optional<Map<Integer, List<Date>>> returnMapOfDatesListOrNothingToUpdate(Movie movie, MovieRequest movieRequest) {
+
+        List<ShowTime> showTimeList = movie.getShowTimes();
+        List<Date> showTimeDates = showTimeList.stream().map(ShowTime::getDate).toList();
+        List<Date> movieRequestShowTimeDates = movieRequest.getShowTimes();
+        if (showTimeDates.size() > 0 || movieRequestShowTimeDates.size() > 0) {
+            Map<Integer, List<Date>> data = new HashMap<Integer, List<Date>>();
+            data.put(1, showTimeDates);
+            data.put(2, movieRequestShowTimeDates);
+            return Optional.of(data);
+        }
+        ;
+        return Optional.empty();
     }
 
     private MovieResponse mapToMovieResponse(Movie movie) {

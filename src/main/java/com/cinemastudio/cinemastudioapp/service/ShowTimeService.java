@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 
@@ -59,7 +60,6 @@ public class ShowTimeService {
     @Transactional(readOnly = true)
     public ShowTimeResponse getOneById(String id) {
         ShowTime showTime = showTimeRepository.findById(id).orElseThrow(() -> new ResourceNofFoundException(ShowTime.class.getSimpleName(), "id", id));
-
         return mapToShowTimeResponse(showTime);
     }
 
@@ -79,10 +79,10 @@ public class ShowTimeService {
     @Transactional
     public String remove(String id) {
         ShowTime showTime = showTimeRepository.findById(id).orElseThrow(() -> new ResourceNofFoundException(ShowTime.class.getSimpleName(), "id", id));
+        LocalDate showTimeDate = showTime.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         showTimeRepository.delete(showTime);
-        return String.format("Cinema show time %s has been deleted successfully", showTime.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-
+        return String.format("Cinema show time %s has been deleted successfully", showTimeDate);
     }
 
     @Transactional
