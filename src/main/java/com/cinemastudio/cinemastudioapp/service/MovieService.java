@@ -39,12 +39,8 @@ public class MovieService {
     @Transactional(readOnly = true)
     public List<MovieResponse> getAll(Integer pageNr, Integer number, String sortBy, String sortDir) {
 
-        int page = pageNr != null ? pageNr : 1;
-        int limit = number != null ? number : 10;
-        String by = sortBy != null ? sortBy : "date";
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(by).ascending() : Sort.by(by).descending();
-
-        Pageable pageable = PageRequest.of(page, limit, sort);
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNr, number, sort);
         Page<Movie> showTimes = movieRepository.findAll(pageable);
 
         List<Movie> movieList = showTimes.getContent();
@@ -154,8 +150,8 @@ public class MovieService {
     private Optional<Map<Integer, List<Date>>> returnMapOfDatesListOrNothingToUpdate(Movie movie, MovieRequest movieRequest) {
 
         List<ShowTime> showTimeList = movie.getShowTimes();
-        List<Date> showTimeDates = showTimeList.stream().map(ShowTime::getDate).toList();
-        List<Date> movieRequestShowTimeDates = movieRequest.getShowTimes();
+        List<Date> showTimeDates = showTimeList != null && !showTimeList.isEmpty() ? showTimeList.stream().map(ShowTime::getDate).toList() : new ArrayList<>();
+        List<Date> movieRequestShowTimeDates = movieRequest.getShowTimes() != null && !movieRequest.getShowTimes().isEmpty() ? movieRequest.getShowTimes() : new ArrayList<>();
         if (showTimeDates.size() > 0 || movieRequestShowTimeDates.size() > 0) {
             Map<Integer, List<Date>> data = new HashMap<Integer, List<Date>>();
             data.put(1, showTimeDates);
@@ -174,7 +170,9 @@ public class MovieService {
                 .director(movie.getDirector())
                 .country(movie.getCountry())
                 .premiere(movie.getPremiere())
-                .showTimes(movie.getShowTimes().stream().map(ShowTime::getDate).toList())
+                .showTimes(movie.getShowTimes() != null && !movie.getShowTimes().isEmpty()
+                        ? movie.getShowTimes().stream().map(ShowTime::getDate).toList()
+                        : new ArrayList<Date>())
                 .build();
     }
 }

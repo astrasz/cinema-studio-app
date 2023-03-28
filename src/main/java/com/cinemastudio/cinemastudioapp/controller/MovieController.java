@@ -3,7 +3,9 @@ package com.cinemastudio.cinemastudioapp.controller;
 import com.cinemastudio.cinemastudioapp.dto.MovieRequest;
 import com.cinemastudio.cinemastudioapp.dto.MovieResponse;
 import com.cinemastudio.cinemastudioapp.service.MovieService;
+import com.cinemastudio.cinemastudioapp.util.ApiConstants;
 import jakarta.validation.Valid;
+import org.apache.coyote.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +27,10 @@ public class MovieController implements ApiController<MovieRequest, MovieRespons
     @GetMapping
     @Override
     public ResponseEntity<List<MovieResponse>> getAll(
-            @RequestParam Integer pageNr,
-            @RequestParam Integer number,
-            @RequestParam String sortBy,
-            @RequestParam String sortDir
+            @RequestParam(value = "pageNr", defaultValue = ApiConstants.DEFAULT_PAGE_NUMBER, required = false) Integer pageNr,
+            @RequestParam(value = "number", defaultValue = ApiConstants.DEFAULT_LIMIT_QUERY, required = false) Integer number,
+            @RequestParam(value = "sortBy", defaultValue = ApiConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = ApiConstants.DEFAULT_SORT_DIR, required = false) String sortDir
     ) {
         return ResponseEntity.ok(movieService.getAll(pageNr, number, sortBy, sortDir));
     }

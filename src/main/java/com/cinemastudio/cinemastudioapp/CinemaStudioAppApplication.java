@@ -52,18 +52,12 @@ public class CinemaStudioAppApplication {
 
     private void createAudience(Hall hall, int rowsNumber, int chairsNumberInRow, RowRepository rowRepository, ChairRepository chairRepository, HallRepository hallRepository) {
 
-        List<Row> rows = new ArrayList<>();
-        List<Chair> chairs = new ArrayList<>();
-
-
         for (int i = 1; i <= rowsNumber; i++) {
             Row row = new Row();
             row.setNumber(i);
             row.setCharNumber(chairsNumberInRow);
             row.setHall(hall);
-
             rowRepository.save(row);
-            rows.add(row);
 
             for (int j = 1; j <= chairsNumberInRow; j++) {
                 Chair chair = new Chair();
@@ -76,10 +70,7 @@ public class CinemaStudioAppApplication {
                 chair.setRow(row);
                 chair.setHall(hall);
                 chairRepository.save(chair);
-
-                chairs.add(chair);
             }
         }
     }
-
 }
