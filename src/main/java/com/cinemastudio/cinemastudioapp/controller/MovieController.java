@@ -5,6 +5,7 @@ import com.cinemastudio.cinemastudioapp.dto.MovieResponse;
 import com.cinemastudio.cinemastudioapp.service.MovieService;
 import com.cinemastudio.cinemastudioapp.util.ApiConstants;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/movies")
+@Slf4j
 public class MovieController implements ApiController<MovieRequest, MovieResponse> {
 
     private final MovieService movieService;
@@ -44,7 +46,7 @@ public class MovieController implements ApiController<MovieRequest, MovieRespons
 
     @PutMapping("/{movieId}")
     @Override
-    public ResponseEntity<MovieResponse> update(@PathVariable final String movieId, @RequestBody final MovieRequest movieRequest) {
+    public ResponseEntity<MovieResponse> update(@PathVariable final String movieId, @Valid @RequestBody final MovieRequest movieRequest) {
         return ResponseEntity.ok(movieService.update(movieId, movieRequest));
     }
 

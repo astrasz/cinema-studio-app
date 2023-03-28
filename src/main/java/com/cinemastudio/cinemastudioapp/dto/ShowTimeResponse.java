@@ -19,7 +19,7 @@ public class ShowTimeResponse {
 
     private LocalDate date;
 
-    private Movie movie;
+    private String movieTitle;
 
     private List<Seat> seats;
 }

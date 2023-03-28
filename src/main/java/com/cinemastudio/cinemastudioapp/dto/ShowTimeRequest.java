@@ -17,7 +17,7 @@ import java.util.List;
 public class ShowTimeRequest {
 
     @NotEmpty(message = "Date cannot be empty")
-    private Date date;
+    private String date;
 
     @NotEmpty(message = "Movie id cannot be empty")
     private String movieId;

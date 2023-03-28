@@ -21,5 +21,5 @@ public class MovieResponse {
 
     private Date premiere;
 
-    private List<Date> showTimes;
+    private List<String> showTimes;
 }

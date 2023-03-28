@@ -3,12 +3,14 @@ package com.cinemastudio.cinemastudioapp.service;
 import com.cinemastudio.cinemastudioapp.dto.SeatRequest;
 import com.cinemastudio.cinemastudioapp.dto.ShowTimeRequest;
 import com.cinemastudio.cinemastudioapp.dto.ShowTimeResponse;
+import com.cinemastudio.cinemastudioapp.exception.InvalidRequestParameterException;
 import com.cinemastudio.cinemastudioapp.exception.ResourceNofFoundException;
 import com.cinemastudio.cinemastudioapp.model.*;
 import com.cinemastudio.cinemastudioapp.repository.HallRepository;
 import com.cinemastudio.cinemastudioapp.repository.MovieRepository;
 import com.cinemastudio.cinemastudioapp.repository.SeatRepository;
 import com.cinemastudio.cinemastudioapp.repository.ShowTimeRepository;
+import com.cinemastudio.cinemastudioapp.util.ApiConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,9 +19,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 
 @Service
@@ -67,13 +74,17 @@ public class ShowTimeService {
     public ShowTimeResponse create(ShowTimeRequest showTimeRequest) {
         Movie movie = movieRepository.findById(showTimeRequest.getMovieId()).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", showTimeRequest.getMovieId()));
 
-        ShowTime showTime = ShowTime.builder()
-                .date(showTimeRequest.getDate())
-                .movie(movie)
-                .build();
+        try {
+            ShowTime showTime = ShowTime.builder()
+                    .date(ApiConstants.DEFAULT_DATE_FORMATTER.parse(showTimeRequest.getDate()))
+                    .movie(movie)
+                    .build();
 
-        showTimeRepository.save(showTime);
-        return mapToShowTimeResponse(showTime);
+            showTimeRepository.save(showTime);
+            return mapToShowTimeResponse(showTime);
+        } catch (ParseException exception) {
+            throw new InvalidRequestParameterException("date", showTimeRequest.getDate());
+        }
     }
 
     @Transactional
@@ -97,7 +108,7 @@ public class ShowTimeService {
         return ShowTimeResponse.builder()
                 .id(showTime.getId())
                 .date(showTime.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
-                .movie(showTime.getMovie())
+                .movieTitle(showTime.getMovie().getTitle())
                 .seats(showTime.getSeats())
                 .build();
     }

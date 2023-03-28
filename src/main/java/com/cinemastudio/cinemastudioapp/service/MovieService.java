@@ -2,11 +2,13 @@ package com.cinemastudio.cinemastudioapp.service;
 
 import com.cinemastudio.cinemastudioapp.dto.MovieRequest;
 import com.cinemastudio.cinemastudioapp.dto.MovieResponse;
+import com.cinemastudio.cinemastudioapp.exception.InvalidRequestParameterException;
 import com.cinemastudio.cinemastudioapp.exception.ResourceNofFoundException;
 import com.cinemastudio.cinemastudioapp.model.Movie;
 import com.cinemastudio.cinemastudioapp.model.ShowTime;
 import com.cinemastudio.cinemastudioapp.repository.MovieRepository;
 import com.cinemastudio.cinemastudioapp.repository.ShowTimeRepository;
+import com.cinemastudio.cinemastudioapp.util.ApiConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +19,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class MovieService {
-
 
     private final MovieRepository movieRepository;
     private final ShowTimeRepository showTimeRepository;
@@ -55,16 +59,20 @@ public class MovieService {
 
     @Transactional
     public MovieResponse create(MovieRequest movieRequest) {
-        Movie movie = Movie.builder()
-                .title(movieRequest.getTitle())
-                .country(movieRequest.getCountry())
-                .director(movieRequest.getDirector())
-                .minutes(movieRequest.getMinutes())
-                .premiere(movieRequest.getPremiere())
-                .build();
+        try {
+            Movie movie = Movie.builder()
+                    .title(movieRequest.getTitle())
+                    .country(movieRequest.getCountry())
+                    .director(movieRequest.getDirector())
+                    .minutes(movieRequest.getMinutes())
+                    .premiere(ApiConstants.DEFAULT_DATE_FORMATTER.parse(movieRequest.getPremiere()))
+                    .build();
 
-        movieRepository.save(movie);
-        return mapToMovieResponse(movie);
+            movieRepository.save(movie);
+            return mapToMovieResponse(movie);
+        } catch (ParseException exception) {
+            throw new InvalidRequestParameterException("premiere", movieRequest.getPremiere());
+        }
     }
 
     @Transactional
@@ -75,8 +83,15 @@ public class MovieService {
         movie.setDirector(movieRequest.getDirector());
         movie.setCountry(movieRequest.getCountry());
         movie.setMinutes(movieRequest.getMinutes());
-        movie.setPremiere(movieRequest.getPremiere());
+        if (!Objects.equals(movieRequest.getPremiere(), "")) {
+            try {
+                movie.setPremiere(ApiConstants.DEFAULT_DATE_FORMATTER.parse(movieRequest.getPremiere()));
 
+            } catch (ParseException exception) {
+                MovieResponse movieResponse = mapToMovieResponse(movie);
+                throw new InvalidRequestParameterException("date", Arrays.toString(movieResponse.getShowTimes().toArray()));
+            }
+        }
         Movie updatedShowTimeMovie = updateShowTimes(movie, movieRequest);
         movieRepository.save(updatedShowTimeMovie);
 
@@ -94,20 +109,18 @@ public class MovieService {
 
     private Movie updateShowTimes(Movie movie, MovieRequest movieRequest) {
 
-        Optional<Map<Integer, List<Date>>> showTimesDatesLists = returnMapOfDatesListOrNothingToUpdate(movie, movieRequest);
-
+        Optional<Map<Integer, List<Timestamp>>> showTimesDatesLists = returnMapOfDatesListOrNothingToUpdate(movie, movieRequest);
         if (showTimesDatesLists != null && showTimesDatesLists.isPresent()) {
-            List<Date> showTimeDates = showTimesDatesLists.get().get(1);
-            List<Date> movieRequestShowTimeDates = showTimesDatesLists.get().get(2);
+            List<Timestamp> showTimeDates = showTimesDatesLists.get().get(1);
+            List<Timestamp> movieRequestShowTimeDates = showTimesDatesLists.get().get(2);
 
             Map<Integer, List<Date>> datesListsToUpdate = prepareShowTimesDatesListsToUpdate(showTimeDates, movieRequestShowTimeDates);
-
             return updateMovieShowTimes(movie, datesListsToUpdate.get(1), datesListsToUpdate.get(2));
         }
         return movie;
     }
 
-    private Map<Integer, List<Date>> prepareShowTimesDatesListsToUpdate(List<Date> showTimeDates, List<Date> movieRequestShowTimeDates) {
+    private Map<Integer, List<Date>> prepareShowTimesDatesListsToUpdate(List<Timestamp> showTimeDates, List<Timestamp> movieRequestShowTimeDates) {
 
         List<Date> showTimeDatesToRemove = new ArrayList<Date>();
         List<Date> showTimesDatesToAdd = new ArrayList<Date>();
@@ -131,35 +144,55 @@ public class MovieService {
     }
 
     private Movie updateMovieShowTimes(Movie movie, List<Date> showTimeDatesToRemove, List<Date> showTimesDatesToAdd) {
+        List<ShowTime> showTimesToRemove = new ArrayList<>();
+
         movie.getShowTimes().forEach(showTime ->
         {
             if (showTimeDatesToRemove.contains(showTime.getDate())) {
-                movie.getShowTimes().remove(showTime);
-                showTimeRepository.delete(showTime);
+                showTimesToRemove.add(showTime);
             }
-            ;
         });
+        for (ShowTime showTime : showTimesToRemove) {
+            movie.getShowTimes().remove(showTime);
+            showTimeRepository.delete(showTime);
+        }
 
         for (Date dateToAdd : showTimesDatesToAdd) {
-            showTimeRepository.save(ShowTime.builder().date(dateToAdd).movie(movie).build());
+            ShowTime showTime = ShowTime.builder().date(dateToAdd).movie(movie).build();
+            movie.getShowTimes().add(showTime);
+            movieRepository.save(movie);
         }
         movieRepository.save(movie);
         return movie;
     }
 
-    private Optional<Map<Integer, List<Date>>> returnMapOfDatesListOrNothingToUpdate(Movie movie, MovieRequest movieRequest) {
+    private Optional<Map<Integer, List<Timestamp>>> returnMapOfDatesListOrNothingToUpdate(Movie movie, MovieRequest movieRequest) {
 
         List<ShowTime> showTimeList = movie.getShowTimes();
-        List<Date> showTimeDates = showTimeList != null && !showTimeList.isEmpty() ? showTimeList.stream().map(ShowTime::getDate).toList() : new ArrayList<>();
-        List<Date> movieRequestShowTimeDates = movieRequest.getShowTimes() != null && !movieRequest.getShowTimes().isEmpty() ? movieRequest.getShowTimes() : new ArrayList<>();
+        List<Timestamp> showTimeDates = showTimeList != null && !showTimeList.isEmpty() ? showTimeList.stream().map(showTime -> {
+            return new Timestamp(showTime.getDate().getTime());
+        }).toList() : new ArrayList<>();
+        List<Timestamp> movieRequestShowTimeDates = movieRequest.getShowTimes() != null && !movieRequest.getShowTimes().isEmpty()
+                ? convertListStringsToListTimestamps(movieRequest.getShowTimes())
+                : new ArrayList<>();
+
         if (showTimeDates.size() > 0 || movieRequestShowTimeDates.size() > 0) {
-            Map<Integer, List<Date>> data = new HashMap<Integer, List<Date>>();
+            Map<Integer, List<Timestamp>> data = new HashMap<Integer, List<Timestamp>>();
             data.put(1, showTimeDates);
             data.put(2, movieRequestShowTimeDates);
             return Optional.of(data);
         }
-        ;
         return Optional.empty();
+    }
+
+    private List<Timestamp> convertListStringsToListTimestamps(List<String> listDates) {
+        return listDates.stream().map(date -> {
+            try {
+                return new Timestamp(ApiConstants.DEFAULT_DATE_FORMATTER.parse(date).getTime());
+            } catch (ParseException e) {
+                throw new InvalidRequestParameterException("date", Arrays.toString(listDates.toArray()));
+            }
+        }).toList();
     }
 
     private MovieResponse mapToMovieResponse(Movie movie) {
@@ -171,8 +204,10 @@ public class MovieService {
                 .country(movie.getCountry())
                 .premiere(movie.getPremiere())
                 .showTimes(movie.getShowTimes() != null && !movie.getShowTimes().isEmpty()
-                        ? movie.getShowTimes().stream().map(ShowTime::getDate).toList()
-                        : new ArrayList<Date>())
+                        ? movie.getShowTimes().stream().map(showTime -> {
+                    return ApiConstants.DEFAULT_DATE_FORMATTER.format(showTime.getDate());
+                }).toList()
+                        : new ArrayList<String>())
                 .build();
     }
 }

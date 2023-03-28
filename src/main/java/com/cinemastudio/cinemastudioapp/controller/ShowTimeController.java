@@ -4,14 +4,16 @@ import com.cinemastudio.cinemastudioapp.dto.SeatRequest;
 import com.cinemastudio.cinemastudioapp.dto.ShowTimeRequest;
 import com.cinemastudio.cinemastudioapp.dto.ShowTimeResponse;
 import com.cinemastudio.cinemastudioapp.service.ShowTimeService;
+import com.cinemastudio.cinemastudioapp.util.ApiConstants;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.List;
 
-@RequestMapping("/api/showTime")
+@RequestMapping("/api/showTimes")
 @RestController
 public class ShowTimeController implements ApiController<ShowTimeRequest, ShowTimeResponse> {
 
@@ -24,10 +26,10 @@ public class ShowTimeController implements ApiController<ShowTimeRequest, ShowTi
     @GetMapping
     @Override
     public ResponseEntity<List<ShowTimeResponse>> getAll(
-            @RequestParam Integer pageNr,
-            @RequestParam Integer number,
-            @RequestParam String sortBy,
-            @RequestParam String sortDir) {
+            @RequestParam(value = "pageNr", defaultValue = ApiConstants.DEFAULT_PAGE_NUMBER, required = false) Integer pageNr,
+            @RequestParam(value = "number", defaultValue = ApiConstants.DEFAULT_LIMIT_QUERY, required = false) Integer number,
+            @RequestParam(value = "sortBy", defaultValue = ApiConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = ApiConstants.DEFAULT_SORT_DIR, required = false) String sortDir) {
         return ResponseEntity.ok(showTimeService.getAll(pageNr, number, sortBy, sortDir));
     }
 
