@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -16,10 +17,11 @@ import java.util.List;
 public class ShowTimeResponse {
 
     private String id;
-
-    private LocalDate date;
+    
+    // new SimpleDateFormat("yyyy-M-dd hh:mm a", Locale.ENGLISH);
+    private String date;
 
     private String movieTitle;
 
-    private List<Seat> seats;
+    private List<Map<String, String>> seats;
 }

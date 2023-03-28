@@ -16,6 +16,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ShowTimeRequest {
 
+    // new SimpleDateFormat("yyyy-M-dd hh:mm a", Locale.ENGLISH);
     @NotEmpty(message = "Date cannot be empty")
     private String date;
 

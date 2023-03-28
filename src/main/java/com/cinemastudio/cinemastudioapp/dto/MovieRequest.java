@@ -26,9 +26,11 @@ public class MovieRequest {
     @NotNull(message = "Country cannot be null")
     private String country;
 
+    // new SimpleDateFormat("yyyy-M-dd", Locale.ENGLISH);
     @NotNull(message = "Premiere cannot be null")
     private String premiere;
 
+    // String: new SimpleDateFormat("yyyy-M-dd hh:mm a", Locale.ENGLISH);
     @NotEmpty(message = "Show times cannot be empty")
     private List<String> showTimes;
 }

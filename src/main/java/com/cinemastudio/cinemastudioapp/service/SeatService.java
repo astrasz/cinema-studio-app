@@ -32,9 +32,7 @@ public class SeatService {
 
 
     @Transactional
-    public ShowTime createMany(SeatRequest seatRequest) {
-        ShowTime showTime = showTimeRepository.findById(seatRequest.getShowTimeId()).orElseThrow(() -> new ResourceNofFoundException(ShowTime.class.getSimpleName(), "id", seatRequest.getShowTimeId()));
-
+    public ShowTime createMany(SeatRequest seatRequest, ShowTime showTime) {
         List<String> hallsIds = seatRequest.getHallsIds();
         List<Hall> hallList = hallRepository.findAllByIds(hallsIds);
 

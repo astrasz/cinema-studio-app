@@ -24,9 +24,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 
 @Service
@@ -98,20 +96,32 @@ public class ShowTimeService {
 
     @Transactional
     public ShowTimeResponse setSeats(SeatRequest seatRequest, String showTimeId) {
-        showTimeRepository.findById(showTimeId).orElseThrow(() -> new ResourceNofFoundException(ShowTime.class.getSimpleName(), "id", seatRequest.getShowTimeId()));
+        ShowTime showTime = showTimeRepository.findById(showTimeId).orElseThrow(() -> new ResourceNofFoundException(ShowTime.class.getSimpleName(), "id", showTimeId));
 
-        ShowTime showTime = seatService.createMany(seatRequest);
-        return mapToShowTimeResponse(showTime);
+        ShowTime showTimeWithAudience = seatService.createMany(seatRequest, showTime);
+        return mapToShowTimeResponse(showTimeWithAudience);
     }
 
     private ShowTimeResponse mapToShowTimeResponse(ShowTime showTime) {
+
+        List<Map<String, String>> seats;
+        if (showTime.getSeats() != null) {
+            seats = showTime.getSeats().stream().map(seat -> {
+                Map<String, String> seatMap = new HashMap<String, String>();
+                seatMap.put("hall", seat.getHall().getName());
+                seatMap.put("row", String.valueOf(seat.getRow().getNumber()));
+                seatMap.put("chair", String.valueOf(seat.getChair().getNumber()));
+                return seatMap;
+            }).toList();
+        } else {
+            seats = new ArrayList<>();
+        }
+
         return ShowTimeResponse.builder()
                 .id(showTime.getId())
-                .date(showTime.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
+                .date(ApiConstants.DEFAULT_DATE_FORMATTER.format(showTime.getDate()))
                 .movieTitle(showTime.getMovie().getTitle())
-                .seats(showTime.getSeats())
+                .seats(seats)
                 .build();
     }
-
-
 }
