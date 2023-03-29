@@ -5,7 +5,7 @@
 }
 
 #root {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -17,13 +17,21 @@
 
 .table.show-times tr {
     border-radius: 10px;
-    cursor: pointer;
 }
 
-.table.show-times tr:hover td,
-.table.show-times tr:hover th {
-    background-color: rgb(143, 8, 120);
+.table.show-times tbody tr:hover td,
+.table.show-times tbody tr:hover th {
+    background-color: rgb(143, 28, 8);
     transition: 0.2s;
+    cursor: pointer;
+
+}
+
+.table.show-times tbody tr.even:hover td,
+.table.show-times tbody tr.even:hover th {
+    background-color: rgb(9, 85, 148);
+    transition: 0.2s;
+
 }
 
 .table.show-times td:first-child,

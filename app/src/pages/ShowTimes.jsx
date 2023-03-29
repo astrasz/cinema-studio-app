@@ -23,7 +23,6 @@ const ShowTimes = () => {
 
     const handleClick = (e, showId) => {
         e.preventDefault();
-        console.log('showId', showId);
         return navigate(`/${showId}`)
     }
 
@@ -41,7 +40,7 @@ const ShowTimes = () => {
                 <tbody>
                     {showTimes.length !== 0 && showTimes.map((show, index) => {
                         return (
-                            <tr key={show.id} className="table-secondary text-center" onClick={(e) => handleClick(e, show.id)}>
+                            <tr key={index} className={`${(index + 1) % 2 ? "table-danger" : "table-info even"} text-center`} onClick={(e) => handleClick(e, show.id)}>
                                 <th scope="row">{index + 1}</th>
                                 <td>{show.date}</td>
                                 <td>{show.date}</td>
