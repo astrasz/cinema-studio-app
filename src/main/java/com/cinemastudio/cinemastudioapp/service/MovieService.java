@@ -2,6 +2,7 @@ package com.cinemastudio.cinemastudioapp.service;
 
 import com.cinemastudio.cinemastudioapp.dto.MovieRequest;
 import com.cinemastudio.cinemastudioapp.dto.MovieResponse;
+import com.cinemastudio.cinemastudioapp.exception.DuplicatedEntityException;
 import com.cinemastudio.cinemastudioapp.exception.InvalidRequestParameterException;
 import com.cinemastudio.cinemastudioapp.exception.ResourceNofFoundException;
 import com.cinemastudio.cinemastudioapp.model.Movie;
@@ -57,11 +58,14 @@ public class MovieService {
 
     @Transactional
     public MovieResponse create(MovieRequest movieRequest) {
+
+        Map<String, String> propertiesForBuilder = checkAndReturnValuesForBuilder(movieRequest);
+
         try {
             Movie movie = Movie.builder()
-                    .title(movieRequest.getTitle())
+                    .title(propertiesForBuilder.get("title"))
                     .country(movieRequest.getCountry())
-                    .director(movieRequest.getDirector())
+                    .director(propertiesForBuilder.get("director"))
                     .minutes(movieRequest.getMinutes())
                     .premiere(ApiConstants.DEFAULT_DATE_FORMATTER.parse(movieRequest.getPremiere()))
                     .build();
@@ -71,6 +75,18 @@ public class MovieService {
         } catch (ParseException exception) {
             throw new InvalidRequestParameterException("premiere", movieRequest.getPremiere());
         }
+    }
+
+    private Map<String, String> checkAndReturnValuesForBuilder(MovieRequest movieRequest) {
+        Optional<Movie> savedMovie = movieRepository.findByTitleAndDirector(movieRequest.getTitle(), movieRequest.getTitle());
+        if (savedMovie.isPresent()) {
+            throw new DuplicatedEntityException(Movie.class.getSimpleName());
+        }
+
+        Map<String, String> properties = new HashMap<>();
+        properties.put("title", movieRequest.getTitle());
+        properties.put("director", movieRequest.getDirector());
+        return properties;
     }
 
     @Transactional
@@ -113,7 +129,7 @@ public class MovieService {
             List<Timestamp> movieRequestShowTimeDates = showTimesDatesLists.get().get(2);
 
             Map<Integer, List<Date>> datesListsToUpdate = prepareShowTimesDatesListsToUpdate(showTimeDates, movieRequestShowTimeDates);
-            return updateMovieShowTimes(movie, datesListsToUpdate.get(1), datesListsToUpdate.get(2));
+            return saveNewShowTimesList(movie, datesListsToUpdate.get(1), datesListsToUpdate.get(2));
         }
         return movie;
     }
@@ -141,7 +157,7 @@ public class MovieService {
         return data;
     }
 
-    private Movie updateMovieShowTimes(Movie movie, List<Date> showTimeDatesToRemove, List<Date> showTimesDatesToAdd) {
+    private Movie saveNewShowTimesList(Movie movie, List<Date> showTimeDatesToRemove, List<Date> showTimesDatesToAdd) {
         List<ShowTime> showTimesToRemove = new ArrayList<>();
 
         movie.getShowTimes().forEach(showTime ->

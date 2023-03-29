@@ -3,12 +3,11 @@ package com.cinemastudio.cinemastudioapp.service;
 import com.cinemastudio.cinemastudioapp.dto.SeatRequest;
 import com.cinemastudio.cinemastudioapp.dto.ShowTimeRequest;
 import com.cinemastudio.cinemastudioapp.dto.ShowTimeResponse;
+import com.cinemastudio.cinemastudioapp.exception.DuplicatedEntityException;
 import com.cinemastudio.cinemastudioapp.exception.InvalidRequestParameterException;
 import com.cinemastudio.cinemastudioapp.exception.ResourceNofFoundException;
 import com.cinemastudio.cinemastudioapp.model.*;
-import com.cinemastudio.cinemastudioapp.repository.HallRepository;
 import com.cinemastudio.cinemastudioapp.repository.MovieRepository;
-import com.cinemastudio.cinemastudioapp.repository.SeatRepository;
 import com.cinemastudio.cinemastudioapp.repository.ShowTimeRepository;
 import com.cinemastudio.cinemastudioapp.util.ApiConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -35,7 +32,6 @@ public class ShowTimeService {
 
     @Autowired
     private final MovieRepository movieRepository;
-
 
     @Autowired
     private final SeatService seatService;
@@ -70,19 +66,15 @@ public class ShowTimeService {
 
     @Transactional
     public ShowTimeResponse create(ShowTimeRequest showTimeRequest) {
-        Movie movie = movieRepository.findById(showTimeRequest.getMovieId()).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", showTimeRequest.getMovieId()));
+        Map<String, Object> propertiesForShowTimeBuilder = checkAndReturnValuesForBuilder(showTimeRequest);
 
-        try {
-            ShowTime showTime = ShowTime.builder()
-                    .date(ApiConstants.DEFAULT_DATE_FORMATTER.parse(showTimeRequest.getDate()))
-                    .movie(movie)
-                    .build();
+        ShowTime showTime = ShowTime.builder()
+                .date((Date) propertiesForShowTimeBuilder.get(Date.class.getSimpleName()))
+                .movie((Movie) propertiesForShowTimeBuilder.get(Movie.class.getSimpleName()))
+                .build();
 
-            showTimeRepository.save(showTime);
-            return mapToShowTimeResponse(showTime);
-        } catch (ParseException exception) {
-            throw new InvalidRequestParameterException("date", showTimeRequest.getDate());
-        }
+        showTimeRepository.save(showTime);
+        return mapToShowTimeResponse(showTime);
     }
 
     @Transactional
@@ -100,6 +92,32 @@ public class ShowTimeService {
 
         ShowTime showTimeWithAudience = seatService.createMany(seatRequest, showTime);
         return mapToShowTimeResponse(showTimeWithAudience);
+    }
+
+    private Map<String, Object> checkAndReturnValuesForBuilder(ShowTimeRequest showTimeRequest) {
+        Date showTimeDate = convertStringDateToDate(showTimeRequest.getDate());
+
+        Movie movie = movieRepository.findById(showTimeRequest.getMovieId()).orElseThrow(() -> new ResourceNofFoundException(Movie.class.getSimpleName(), "id", showTimeRequest.getMovieId()));
+
+        Optional<ShowTime> savedShowTimeResult = showTimeRepository.findByDateAndMovieId(showTimeDate, movie);
+        if (savedShowTimeResult.isPresent()) {
+            throw new DuplicatedEntityException(ShowTime.class.getSimpleName());
+        }
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(showTimeDate.getClass().getSimpleName(), showTimeDate);
+        properties.put(movie.getClass().getSimpleName(), movie);
+        return properties;
+    }
+
+    private Date convertStringDateToDate(String date) {
+        Date convertedDate;
+        try {
+            convertedDate = ApiConstants.DEFAULT_DATE_FORMATTER.parse(date);
+        } catch (ParseException exception) {
+            throw new InvalidRequestParameterException("date", date);
+        }
+        return convertedDate;
     }
 
     private ShowTimeResponse mapToShowTimeResponse(ShowTime showTime) {
