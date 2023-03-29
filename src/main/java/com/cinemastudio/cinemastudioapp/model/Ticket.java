@@ -19,8 +19,10 @@ public class Ticket {
     private String id;
 
     @OneToOne
+    @JoinColumn(name = "seat_id", referencedColumnName = "id")
     private Seat seat;
 
     @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 }
