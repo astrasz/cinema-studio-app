@@ -2,11 +2,10 @@ package com.cinemastudio.cinemastudioapp.controller;
 
 import com.cinemastudio.cinemastudioapp.dto.MovieRequest;
 import com.cinemastudio.cinemastudioapp.dto.MovieResponse;
-import com.cinemastudio.cinemastudioapp.service.MovieService;
+import com.cinemastudio.cinemastudioapp.service.impl.MovieServiceImpl;
 import com.cinemastudio.cinemastudioapp.util.ApiConstants;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +18,11 @@ import java.util.List;
 @Slf4j
 public class MovieController implements ApiController<MovieRequest, MovieResponse> {
 
-    private final MovieService movieService;
+    private final MovieServiceImpl movieServiceImpl;
 
     @Autowired
-    public MovieController(MovieService movieService) {
-        this.movieService = movieService;
+    public MovieController(MovieServiceImpl movieServiceImpl) {
+        this.movieServiceImpl = movieServiceImpl;
     }
 
     @GetMapping
@@ -34,32 +33,32 @@ public class MovieController implements ApiController<MovieRequest, MovieRespons
             @RequestParam(value = "sortBy", defaultValue = ApiConstants.DEFAULT_SORT_BY, required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = ApiConstants.DEFAULT_SORT_DIR, required = false) String sortDir
     ) {
-        return ResponseEntity.ok(movieService.getAll(pageNr, number, sortBy, sortDir));
+        return ResponseEntity.ok(movieServiceImpl.getAll(pageNr, number, sortBy, sortDir));
     }
 
 
     @GetMapping("/{movieId}")
     @Override
     public ResponseEntity<MovieResponse> getOneById(@PathVariable final String movieId) {
-        return ResponseEntity.ok(movieService.getOneById(movieId));
+        return ResponseEntity.ok(movieServiceImpl.getOneById(movieId));
     }
 
     @PutMapping("/{movieId}")
     @Override
     public ResponseEntity<MovieResponse> update(@PathVariable final String movieId, @Valid @RequestBody final MovieRequest movieRequest) {
-        return ResponseEntity.ok(movieService.update(movieId, movieRequest));
+        return ResponseEntity.ok(movieServiceImpl.update(movieId, movieRequest));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Override
     public ResponseEntity<MovieResponse> create(@Valid @RequestBody final MovieRequest movieRequest) {
-        return new ResponseEntity<>(movieService.create(movieRequest), HttpStatus.CREATED);
+        return new ResponseEntity<>(movieServiceImpl.create(movieRequest), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{movieId}")
     @Override
     public ResponseEntity<String> remove(@PathVariable final String movieId) {
-        return ResponseEntity.ok(movieService.remove(movieId));
+        return ResponseEntity.ok(movieServiceImpl.remove(movieId));
     }
 }

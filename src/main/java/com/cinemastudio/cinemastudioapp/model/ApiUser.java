@@ -1,28 +1,33 @@
 package com.cinemastudio.cinemastudioapp.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static jakarta.persistence.FetchType.EAGER;
+
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tickets")
-public class Ticket {
+@Table(name = "users")
+public class ApiUser {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @OneToOne
-    @JoinColumn(name = "seat_id", referencedColumnName = "id")
-    private Seat seat;
+    private String name;
+    private String username;
+    private String password;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private ApiUser user;
+    @ManyToMany(fetch = EAGER)
+    private List<ApiRole> roles = new ArrayList<>();
+
 }

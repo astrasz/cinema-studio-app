@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tickets")
-public class User {
-
-    @Id
+@Table(name = "roles")
+public class ApiRole {
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
     private String id;
+    private String name;
 }
