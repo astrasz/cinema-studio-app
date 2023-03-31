@@ -1,6 +1,6 @@
 package com.cinemastudio.cinemastudioapp.service;
 
-import com.cinemastudio.cinemastudioapp.dto.SeatRequest;
+import com.cinemastudio.cinemastudioapp.dto.request.SeatRequest;
 import com.cinemastudio.cinemastudioapp.model.Chair;
 import com.cinemastudio.cinemastudioapp.model.Hall;
 import com.cinemastudio.cinemastudioapp.model.Row;

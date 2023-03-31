@@ -1,6 +1,6 @@
 package com.cinemastudio.cinemastudioapp.service.impl;
 
-import com.cinemastudio.cinemastudioapp.dto.SeatRequest;
+import com.cinemastudio.cinemastudioapp.dto.request.SeatRequest;
 import com.cinemastudio.cinemastudioapp.exception.DemandedResourceInvalidException;
 import com.cinemastudio.cinemastudioapp.model.*;
 import com.cinemastudio.cinemastudioapp.repository.HallRepository;

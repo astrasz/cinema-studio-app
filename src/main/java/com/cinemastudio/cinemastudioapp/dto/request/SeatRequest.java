@@ -1,4 +1,4 @@
-package com.cinemastudio.cinemastudioapp.dto;
+package com.cinemastudio.cinemastudioapp.dto.request;
 
 import com.cinemastudio.cinemastudioapp.model.ShowTime;
 import jakarta.validation.constraints.NotBlank;

@@ -1,27 +1,25 @@
-package com.cinemastudio.cinemastudioapp.dto;
+package com.cinemastudio.cinemastudioapp.dto.request;
 
 import com.cinemastudio.cinemastudioapp.model.Movie;
 import com.cinemastudio.cinemastudioapp.model.Seat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
-public class ShowTimeResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ShowTimeRequest {
 
-    private String id;
-    
     // new SimpleDateFormat("yyyy-M-dd hh:mm a", Locale.ENGLISH);
+    @NotEmpty(message = "Date cannot be empty")
     private String date;
 
-    private String movieTitle;
-
-    private List<Map<String, String>> seats;
+    @NotEmpty(message = "Movie id cannot be empty")
+    private String movieId;
 }

@@ -1,7 +1,8 @@
 package com.cinemastudio.cinemastudioapp.service;
 
-import com.cinemastudio.cinemastudioapp.dto.*;
-import org.springframework.transaction.annotation.Transactional;
+import com.cinemastudio.cinemastudioapp.dto.request.SeatRequest;
+import com.cinemastudio.cinemastudioapp.dto.request.ShowTimeRequest;
+import com.cinemastudio.cinemastudioapp.dto.response.ShowTimeResponse;
 
 import java.util.List;
 

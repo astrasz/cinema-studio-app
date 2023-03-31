@@ -44,13 +44,13 @@ public class CinemaStudioAppApplication {
 
                 hallRepository.saveAll(List.of(smallHall, bigHall));
 
-                createAudience(smallHall, rowsNumberInSmallHall, chairsNumberInRow, rowRepository, chairRepository, hallRepository);
-                createAudience(bigHall, rowsNumberInBigHall, chairsNumberInRow, rowRepository, chairRepository, hallRepository);
+                createAudience(smallHall, rowsNumberInSmallHall, chairsNumberInRow, rowRepository, chairRepository);
+                createAudience(bigHall, rowsNumberInBigHall, chairsNumberInRow, rowRepository, chairRepository);
             }
         };
     }
 
-    private void createAudience(Hall hall, int rowsNumber, int chairsNumberInRow, RowRepository rowRepository, ChairRepository chairRepository, HallRepository hallRepository) {
+    private void createAudience(Hall hall, int rowsNumber, int chairsNumberInRow, RowRepository rowRepository, ChairRepository chairRepository) {
 
         for (int i = 1; i <= rowsNumber; i++) {
             Row row = new Row();

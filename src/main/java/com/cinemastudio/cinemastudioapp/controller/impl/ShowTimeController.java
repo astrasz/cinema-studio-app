@@ -1,8 +1,9 @@
-package com.cinemastudio.cinemastudioapp.controller;
+package com.cinemastudio.cinemastudioapp.controller.impl;
 
-import com.cinemastudio.cinemastudioapp.dto.SeatRequest;
-import com.cinemastudio.cinemastudioapp.dto.ShowTimeRequest;
-import com.cinemastudio.cinemastudioapp.dto.ShowTimeResponse;
+import com.cinemastudio.cinemastudioapp.controller.ApiController;
+import com.cinemastudio.cinemastudioapp.dto.request.SeatRequest;
+import com.cinemastudio.cinemastudioapp.dto.request.ShowTimeRequest;
+import com.cinemastudio.cinemastudioapp.dto.response.ShowTimeResponse;
 import com.cinemastudio.cinemastudioapp.service.impl.ShowTimeServiceImpl;
 import com.cinemastudio.cinemastudioapp.util.ApiConstants;
 import jakarta.validation.Valid;
@@ -29,13 +30,13 @@ public class ShowTimeController implements ApiController<ShowTimeRequest, ShowTi
             @RequestParam(value = "number", defaultValue = ApiConstants.DEFAULT_LIMIT_QUERY, required = false) Integer number,
             @RequestParam(value = "sortBy", defaultValue = ApiConstants.DEFAULT_SORT_BY, required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = ApiConstants.DEFAULT_SORT_DIR, required = false) String sortDir) {
-        return ResponseEntity.ok(showTimeServiceImpl.getAll(pageNr, number, sortBy, sortDir));
+        return ResponseEntity.ok().body(showTimeServiceImpl.getAll(pageNr, number, sortBy, sortDir));
     }
 
     @GetMapping("/{showTimeId}")
     @Override
     public ResponseEntity<ShowTimeResponse> getOneById(@PathVariable String showTimeId) {
-        return ResponseEntity.ok(showTimeServiceImpl.getOneById(showTimeId));
+        return ResponseEntity.ok().body(showTimeServiceImpl.getOneById(showTimeId));
     }
 
     @Override
@@ -52,11 +53,11 @@ public class ShowTimeController implements ApiController<ShowTimeRequest, ShowTi
     @DeleteMapping("/{showTimeId}")
     @Override
     public ResponseEntity<String> remove(@PathVariable String showTimeId) {
-        return ResponseEntity.ok(showTimeServiceImpl.remove(showTimeId));
+        return ResponseEntity.ok().body(showTimeServiceImpl.remove(showTimeId));
     }
 
     @PostMapping("/{showTimeId}/seats")
     public ResponseEntity<ShowTimeResponse> setSeats(@Valid @RequestBody SeatRequest seatRequest, @PathVariable String showTimeId) {
-        return ResponseEntity.ok(showTimeServiceImpl.setSeats(seatRequest, showTimeId));
+        return ResponseEntity.ok().body(showTimeServiceImpl.setSeats(seatRequest, showTimeId));
     }
 }

@@ -1,8 +1,8 @@
 package com.cinemastudio.cinemastudioapp.service.impl;
 
-import com.cinemastudio.cinemastudioapp.dto.SeatRequest;
-import com.cinemastudio.cinemastudioapp.dto.ShowTimeRequest;
-import com.cinemastudio.cinemastudioapp.dto.ShowTimeResponse;
+import com.cinemastudio.cinemastudioapp.dto.request.SeatRequest;
+import com.cinemastudio.cinemastudioapp.dto.request.ShowTimeRequest;
+import com.cinemastudio.cinemastudioapp.dto.response.ShowTimeResponse;
 import com.cinemastudio.cinemastudioapp.exception.DuplicatedEntityException;
 import com.cinemastudio.cinemastudioapp.exception.InvalidRequestParameterException;
 import com.cinemastudio.cinemastudioapp.exception.ResourceNofFoundException;

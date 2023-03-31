@@ -1,4 +1,4 @@
-package com.cinemastudio.cinemastudioapp.dto;
+package com.cinemastudio.cinemastudioapp.dto.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import org.hibernate.validator.constraints.UniqueElements;

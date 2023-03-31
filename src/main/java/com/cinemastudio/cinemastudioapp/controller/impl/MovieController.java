@@ -1,7 +1,8 @@
-package com.cinemastudio.cinemastudioapp.controller;
+package com.cinemastudio.cinemastudioapp.controller.impl;
 
-import com.cinemastudio.cinemastudioapp.dto.MovieRequest;
-import com.cinemastudio.cinemastudioapp.dto.MovieResponse;
+import com.cinemastudio.cinemastudioapp.controller.ApiController;
+import com.cinemastudio.cinemastudioapp.dto.request.MovieRequest;
+import com.cinemastudio.cinemastudioapp.dto.response.MovieResponse;
 import com.cinemastudio.cinemastudioapp.service.impl.MovieServiceImpl;
 import com.cinemastudio.cinemastudioapp.util.ApiConstants;
 import jakarta.validation.Valid;
@@ -33,20 +34,20 @@ public class MovieController implements ApiController<MovieRequest, MovieRespons
             @RequestParam(value = "sortBy", defaultValue = ApiConstants.DEFAULT_SORT_BY, required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = ApiConstants.DEFAULT_SORT_DIR, required = false) String sortDir
     ) {
-        return ResponseEntity.ok(movieServiceImpl.getAll(pageNr, number, sortBy, sortDir));
+        return ResponseEntity.ok().body(movieServiceImpl.getAll(pageNr, number, sortBy, sortDir));
     }
 
 
     @GetMapping("/{movieId}")
     @Override
     public ResponseEntity<MovieResponse> getOneById(@PathVariable final String movieId) {
-        return ResponseEntity.ok(movieServiceImpl.getOneById(movieId));
+        return ResponseEntity.ok().body(movieServiceImpl.getOneById(movieId));
     }
 
     @PutMapping("/{movieId}")
     @Override
     public ResponseEntity<MovieResponse> update(@PathVariable final String movieId, @Valid @RequestBody final MovieRequest movieRequest) {
-        return ResponseEntity.ok(movieServiceImpl.update(movieId, movieRequest));
+        return ResponseEntity.ok().body(movieServiceImpl.update(movieId, movieRequest));
     }
 
     @PostMapping
@@ -59,6 +60,6 @@ public class MovieController implements ApiController<MovieRequest, MovieRespons
     @DeleteMapping("/{movieId}")
     @Override
     public ResponseEntity<String> remove(@PathVariable final String movieId) {
-        return ResponseEntity.ok(movieServiceImpl.remove(movieId));
+        return ResponseEntity.ok().body(movieServiceImpl.remove(movieId));
     }
 }

@@ -1,4 +1,4 @@
-package com.cinemastudio.cinemastudioapp.dto;
+package com.cinemastudio.cinemastudioapp.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-package com.cinemastudio.cinemastudioapp.dto;
+package com.cinemastudio.cinemastudioapp.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

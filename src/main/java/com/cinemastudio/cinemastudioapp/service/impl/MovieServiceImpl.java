@@ -1,8 +1,8 @@
 package com.cinemastudio.cinemastudioapp.service.impl;
 
 import com.cinemastudio.cinemastudioapp.service.MovieService;
-import com.cinemastudio.cinemastudioapp.dto.MovieRequest;
-import com.cinemastudio.cinemastudioapp.dto.MovieResponse;
+import com.cinemastudio.cinemastudioapp.dto.request.MovieRequest;
+import com.cinemastudio.cinemastudioapp.dto.response.MovieResponse;
 import com.cinemastudio.cinemastudioapp.exception.DuplicatedEntityException;
 import com.cinemastudio.cinemastudioapp.exception.InvalidRequestParameterException;
 import com.cinemastudio.cinemastudioapp.exception.ResourceNofFoundException;

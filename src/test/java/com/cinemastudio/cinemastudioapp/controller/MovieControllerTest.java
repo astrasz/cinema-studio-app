@@ -1,5 +1,6 @@
 package com.cinemastudio.cinemastudioapp.controller;
 
+import com.cinemastudio.cinemastudioapp.controller.impl.MovieController;
 import com.cinemastudio.cinemastudioapp.service.impl.MovieServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

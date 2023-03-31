@@ -1,7 +1,7 @@
 package com.cinemastudio.cinemastudioapp.service;
 
-import com.cinemastudio.cinemastudioapp.dto.AddApiUserRequest;
-import com.cinemastudio.cinemastudioapp.dto.ApiUserResponse;
+import com.cinemastudio.cinemastudioapp.dto.request.RegisterRequest;
+import com.cinemastudio.cinemastudioapp.dto.response.ApiUserResponse;
 
 import java.util.List;
 
@@ -10,9 +10,9 @@ public interface ApiUserService {
 
     ApiUserResponse getOneById(String userId);
 
-    ApiUserResponse create(AddApiUserRequest userRequest);
+    ApiUserResponse create(RegisterRequest userRequest);
 
-    ApiUserResponse updateRoles(String userId, List<String> roles);
+    ApiUserResponse updateRole(String userId, String role);
 
     String remove(String userId);
 }

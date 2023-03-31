@@ -1,7 +1,7 @@
 package com.cinemastudio.cinemastudioapp.service;
 
-import com.cinemastudio.cinemastudioapp.dto.MovieRequest;
-import com.cinemastudio.cinemastudioapp.dto.MovieResponse;
+import com.cinemastudio.cinemastudioapp.dto.request.MovieRequest;
+import com.cinemastudio.cinemastudioapp.dto.response.MovieResponse;
 
 import java.util.List;
 
