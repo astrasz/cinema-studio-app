@@ -24,6 +24,12 @@ public class SecurityConfig {
 
     private final CustomLogoutHandler customLogoutHandler;
 
+    private static final String[] WHITE_LIST = {
+            "/api/account/**",
+            "api/showTimes/**",
+            "api/movies"
+    };
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -31,7 +37,7 @@ public class SecurityConfig {
         return http
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests()
-                .requestMatchers("/api/account/**")
+                .requestMatchers(WHITE_LIST)
                 .permitAll()
                 .anyRequest()
                 .authenticated()

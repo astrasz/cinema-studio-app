@@ -6,7 +6,7 @@ const Layout = ({ children }) => {
         <>
             <div className="navbar navbar-expand-lg navbar-dark bg-primary">
                 <div className="container">
-                    <Link to="/" className="navbar-brand text-primary fw-bold" style={{ fontFamily: "Bebas Neue", fontSize: "3rem" }}>Cinema Studio</Link>
+                    <Link to="/" className="navbar-brand text-primary fw-bold bg-warning py-0 px-3" style={{ fontFamily: "Bebas Neue", fontSize: "3rem", borderRadius: "10px" }}>Cinema Studio</Link>
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>

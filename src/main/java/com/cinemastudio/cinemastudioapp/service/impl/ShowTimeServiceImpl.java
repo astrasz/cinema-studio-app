@@ -135,6 +135,7 @@ public class ShowTimeServiceImpl implements ShowTimeService {
                 seatMap.put("hall", seat.getHall().getName());
                 seatMap.put("row", String.valueOf(seat.getRow().getNumber()));
                 seatMap.put("chair", String.valueOf(seat.getChair().getNumber()));
+                seatMap.put("state", String.valueOf(seat.getState()));
                 return seatMap;
             }).toList();
         } else {
