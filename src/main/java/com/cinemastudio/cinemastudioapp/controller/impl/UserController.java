@@ -6,6 +6,7 @@ import com.cinemastudio.cinemastudioapp.dto.request.RegisterRequest;
 import com.cinemastudio.cinemastudioapp.dto.response.ApiUserResponse;
 import com.cinemastudio.cinemastudioapp.service.ApiUserService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ public class UserController implements ApiUserController {
 
     private final ApiUserService apiUserService;
 
+    @Autowired
     public UserController(ApiUserService apiUserService) {
         this.apiUserService = apiUserService;
     }

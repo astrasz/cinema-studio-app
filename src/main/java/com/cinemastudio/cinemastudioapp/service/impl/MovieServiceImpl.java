@@ -46,9 +46,9 @@ public class MovieServiceImpl implements MovieService {
 
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNr, number, sort);
-        Page<Movie> showTimes = movieRepository.findAll(pageable);
+        Page<Movie> movies = movieRepository.findAll(pageable);
 
-        List<Movie> movieList = showTimes.getContent();
+        List<Movie> movieList = movies.getContent();
         return movieList.stream().map(this::mapToMovieResponse).toList();
     }
 

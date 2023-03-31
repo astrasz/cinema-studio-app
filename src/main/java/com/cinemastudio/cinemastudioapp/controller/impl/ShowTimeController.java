@@ -7,6 +7,7 @@ import com.cinemastudio.cinemastudioapp.dto.response.ShowTimeResponse;
 import com.cinemastudio.cinemastudioapp.service.impl.ShowTimeServiceImpl;
 import com.cinemastudio.cinemastudioapp.util.ApiConstants;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ public class ShowTimeController implements ApiController<ShowTimeRequest, ShowTi
 
     private final ShowTimeServiceImpl showTimeServiceImpl;
 
+    @Autowired
     public ShowTimeController(ShowTimeServiceImpl showTimeServiceImpl) {
         this.showTimeServiceImpl = showTimeServiceImpl;
     }

@@ -8,6 +8,7 @@ import com.cinemastudio.cinemastudioapp.dto.response.AuthResponse;
 import com.cinemastudio.cinemastudioapp.security.AuthService;
 import com.cinemastudio.cinemastudioapp.service.ApiUserService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ public class AuthController implements ApiAuthController {
 
     private final AuthService authService;
 
+    @Autowired
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
