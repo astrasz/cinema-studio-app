@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const Seat = ({ seat }) => {
+const Seat = ({ seat, selectedSeats, addToSelected, removeFromSelected }) => {
 
     const [bgColor, setBgColor] = useState("");
     const [cursor, setCursor] = useState("");
@@ -10,15 +10,32 @@ const Seat = ({ seat }) => {
         seat.state !== 'SOLD' && setCursor("pointer");
     }, [bgColor, cursor, seat.state])
 
+    useEffect(() => {
+        const seatIndex = selectedSeats.findIndex(selecteSeat => selecteSeat.chair === seat.chair);
+        if (seatIndex === -1) {
+            const seatNumberElement = document.querySelector("#seat-" + seat.chair + ">span");
+            const seatElemenet = document.getElementById("seat-" + seat.chair);
+
+            seatElemenet.classList.remove("bg-warning");
+            seatNumberElement.classList.remove("text-dark");
+        }
+    }, [selectedSeats, seat.chair])
+
 
 
     const handleClick = (e) => {
         e.preventDefault();
         const seatElemenet = document.getElementById("seat-" + seat.chair);
-        if (seatElemenet.classList.contains("bg-primary")) {
-            seatElemenet.classList.remove("bg-primary");
+        const seatNumberElement = document.querySelector("#seat-" + seat.chair + ">span");
+        if (seatElemenet.classList.contains("bg-warning")) {
+            seatElemenet.classList.remove("bg-warning");
+            seatNumberElement.classList.remove("text-dark");
+            removeFromSelected(seat);
+
         } else {
-            seatElemenet.classList.add("bg-primary")
+            seatElemenet.classList.add("bg-warning");
+            seatNumberElement.classList.add("text-dark");
+            addToSelected(seat);
         }
     }
 

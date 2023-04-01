@@ -3,12 +3,16 @@ import { useParams } from "react-router-dom";
 import { getShowTimeById } from "../api";
 import Row from "../components/Row";
 import Seat from "../components/Seat";
+import SeatsLegend from "../components/SeatsLegend";
+import TicketsSummary from "../components/TicketsSummary";
 
 const ShowTimeSeats = () => {
     const params = useParams();
 
     const [showTime, setShowTime] = useState("");
     const [seatsByRows, setSeatsByRows] = useState([]);
+    const [selectedSeats, setSelectedSeats] = useState([])
+    const [isDiscount, setIsDiscount] = useState(false);
     const [error, setError] = useState("");
 
     useEffect(() => {
@@ -25,7 +29,6 @@ const ShowTimeSeats = () => {
     }, [])
 
     useEffect(() => {
-
         if (showTime) {
             let rows = [];
             showTime.seats.forEach(seat => {
@@ -43,11 +46,26 @@ const ShowTimeSeats = () => {
         }
     }, [showTime])
 
+    // console.log('showTime', showTime);
+
+    const addToSelectedSeats = (seat) => {
+        const newSelected = [...selectedSeats];
+        newSelected.push(seat);
+        setSelectedSeats(newSelected);
+    }
+
+    const removeFromSelectedSeats = (seat) => {
+        const newSelected = [...selectedSeats].filter(selectedSeat => selectedSeat.chair !== seat.chair)
+        setSelectedSeats(newSelected);
+    }
+
+    const toggleDiscount = () => setIsDiscount((prevState) => !prevState);
 
     return (
 
         <div className="seats-container text-center mx-auto" style={{ maxWidth: "1000px" }}>
-            <h1 className="my-5">{showTime && showTime.movieTitle}</h1>
+            <p className="mt-5 mb-3 h1">{showTime && showTime.movieTitle}</p>
+            <p className="mb-5 h4 text-danger">{showTime && showTime.date}</p>
 
             <div className="container">
                 <div className="row flex-nowrap">
@@ -60,6 +78,9 @@ const ShowTimeSeats = () => {
                                     return <Row
                                         key={index}
                                         seats={row}
+                                        selectedSeats={selectedSeats}
+                                        addToSelected={addToSelectedSeats}
+                                        removeFromSelected={removeFromSelectedSeats}
                                     />
                                 })}
                             </div>
@@ -68,30 +89,21 @@ const ShowTimeSeats = () => {
                     </div>
                     <div className="col-1"></div>
                     <div className="col-2 d-flex flex-column justify-content-center align-items-start">
-
-                        <div className="resume"></div>
-
-                        <div className="mb-3">
-                            <h4>Legend</h4>
-                        </div>
-                        <div className="w-100 mb-3">
-                            <div className="w-25"><p>Sold</p></div>
-                            <div className="text-center d-flex align-items-center justify-content-center ms-5 flex-grow bg-primary" style={{ width: "3rem", height: "3.5rem", border: "5px solid black" }} >
-                            </div>
-                        </div>
-                        <div className="w-100 mb-3">
-                            <div className="w-25"><p >Free</p></div>
-                            <div className="text-center d-flex align-items-center justify-content-center ms-5 flex-grow" style={{ width: "3rem", height: "3.5rem", border: "5px solid black", marginRight: "0" }} >
-                            </div>
-                        </div>
-                        <div className="w-100 mb-3">
-                            <div className="w-25"><p >Selected</p></div>
-                            <div className="text-center d-flex align-items-center justify-content-center ms-5 flex-grow bg-warning" style={{ width: "3rem", height: "3.5rem", border: "5px solid black", marginRight: "0" }} >
-                            </div>
-                        </div>
+                        <SeatsLegend />
+                    </div>
+                </div>
+                <div className="row w-100 my-5">
+                    <div className="summary w-100 mt-5">
+                        <TicketsSummary
+                            selectedSeats={selectedSeats}
+                            isDiscount={isDiscount}
+                            removeFromSelected={removeFromSelectedSeats}
+                            toggleDiscount={toggleDiscount}
+                        />
                     </div>
                 </div>
             </div>
+
         </div>
     )
 

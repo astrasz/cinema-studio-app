@@ -9,6 +9,7 @@ import com.cinemastudio.cinemastudioapp.exception.ResourceNofFoundException;
 import com.cinemastudio.cinemastudioapp.model.*;
 import com.cinemastudio.cinemastudioapp.repository.MovieRepository;
 import com.cinemastudio.cinemastudioapp.repository.ShowTimeRepository;
+import com.cinemastudio.cinemastudioapp.repository.TicketTypeRepository;
 import com.cinemastudio.cinemastudioapp.service.ShowTimeService;
 import com.cinemastudio.cinemastudioapp.util.ApiConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,20 +29,21 @@ import java.util.*;
 @Service
 public class ShowTimeServiceImpl implements ShowTimeService {
 
-    @Autowired
     private final ShowTimeRepository showTimeRepository;
 
-    @Autowired
     private final MovieRepository movieRepository;
 
-    @Autowired
     private final SeatServiceImpl seatServiceImpl;
 
+    private final TicketTypeRepository ticketTypeRepository;
+
+
     @Autowired
-    public ShowTimeServiceImpl(ShowTimeRepository showTimeRepository, MovieRepository movieRepository, SeatServiceImpl seatServiceImpl) {
+    public ShowTimeServiceImpl(ShowTimeRepository showTimeRepository, MovieRepository movieRepository, SeatServiceImpl seatServiceImpl, TicketTypeRepository ticketTypeRepository) {
         this.showTimeRepository = showTimeRepository;
         this.movieRepository = movieRepository;
         this.seatServiceImpl = seatServiceImpl;
+        this.ticketTypeRepository = ticketTypeRepository;
     }
 
     @Transactional(readOnly = true)
@@ -128,6 +130,11 @@ public class ShowTimeServiceImpl implements ShowTimeService {
 
     private ShowTimeResponse mapToShowTimeResponse(ShowTime showTime) {
 
+        List<TicketType> ticketTypes = ticketTypeRepository.findAll();
+        if (ticketTypes.size() == 0) {
+            throw new ResourceNofFoundException(TicketType.class.getSimpleName(), null, null);
+        }
+
         List<Map<String, String>> seats;
         if (showTime.getSeats() != null) {
             seats = showTime.getSeats().stream().map(seat -> {
@@ -136,6 +143,14 @@ public class ShowTimeServiceImpl implements ShowTimeService {
                 seatMap.put("row", String.valueOf(seat.getRow().getNumber()));
                 seatMap.put("chair", String.valueOf(seat.getChair().getNumber()));
                 seatMap.put("state", String.valueOf(seat.getState()));
+                seatMap.put("regular", String.valueOf(Objects.requireNonNull(ticketTypes.stream()
+                        .filter(ticketType -> ticketType.getName().equals("regular"))
+                        .findAny()
+                        .orElse(null)).getPrice()));
+                seatMap.put("halfPrice", String.valueOf(Objects.requireNonNull(ticketTypes.stream()
+                        .filter(ticketType -> ticketType.getName().equals("half-price"))
+                        .findAny()
+                        .orElse(null)).getPrice()));
                 return seatMap;
             }).toList();
         } else {

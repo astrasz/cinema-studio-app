@@ -1,6 +1,6 @@
 import Seat from "./Seat"
 
-const Row = ({ seats }) => {
+const Row = ({ seats, selectedSeats, addToSelected, removeFromSelected }) => {
 
     return (
         <div className="row flex-nowrap mb-2">
@@ -8,14 +8,18 @@ const Row = ({ seats }) => {
             <div className="col-10">
                 <div className="row no-gutters">
                     {seats.length !== 0 && seats.map((seat, index) => {
-                        return <Seat key={index} seat={seat} />
+                        return <Seat
+                            key={index}
+                            seat={seat}
+                            selectedSeats={selectedSeats}
+                            addToSelected={addToSelected}
+                            removeFromSelected={removeFromSelected} />
                     })}
                 </div>
             </div>
             <div className="col-1"></div>
         </div>
     )
-
 }
 
 export default Row;
