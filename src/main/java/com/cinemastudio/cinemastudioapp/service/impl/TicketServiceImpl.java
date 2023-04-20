@@ -23,10 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class TicketServiceImpl implements TicketService {
@@ -76,6 +73,15 @@ public class TicketServiceImpl implements TicketService {
                 .build();
 
         return mapToTicketResponse(ticket);
+    }
+
+    public List<TicketResponse> createMany(List<TicketRequest> ticketRequestList) {
+        List<TicketResponse> ticketResponseList = new ArrayList<>();
+        for (TicketRequest request : ticketRequestList) {
+            TicketResponse ticketResponse = create(request);
+            ticketResponseList.add(ticketResponse);
+        }
+        return ticketResponseList;
     }
 
     private Map<String, Object> returnLinkedEntities(TicketRequest ticketRequest) {
@@ -136,4 +142,6 @@ public class TicketServiceImpl implements TicketService {
             throw new InvalidRequestParameterException("status", status);
         }
     }
+
+
 }

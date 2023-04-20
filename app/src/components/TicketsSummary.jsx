@@ -1,4 +1,10 @@
-const TicketsSummary = ({ selectedSeats, isDiscount, removeFromSelected, toggleDiscount }) => {
+import { useAuthContext } from "../hooks/useAuthContext";
+import ModalTip from "./ModalTip";
+
+const TicketsSummary = ({ selectedSeats, isDiscount, removeFromSelected, toggleDiscount, bookSeats }) => {
+
+    const context = useAuthContext();
+
     return (
         <>
             <p className="h5 mb-3 mt-4">Selected seats</p>
@@ -41,9 +47,10 @@ const TicketsSummary = ({ selectedSeats, isDiscount, removeFromSelected, toggleD
                             <input className="form-check-input border-danger" type="checkbox" name="studentCheckbox" onChange={toggleDiscount} />
                             <label className="ms-2 form-check-label" htmlFor="studentCheckbox">I am student</label>
                         </div>
-                        <button className="btn btn-outline-danger mt-3">
+                        <button onClick={bookSeats} type="button" className="btn btn-outline-danger mt-3" data-bs-toggle="modal" data-bs-target={context.user ? "" : "#modalTip"}>
                             Book selected
                         </button>
+                        <ModalTip />
                     </div>
                 )}
             </div>

@@ -28,13 +28,11 @@ public class ApiUser implements UserDetails, CredentialsContainer {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-
     private String firstname;
     private String lastname;
     @Column(unique = true)
     private String email;
     private String password;
-
     @Enumerated(value = EnumType.STRING)
     private RoleName role;
 

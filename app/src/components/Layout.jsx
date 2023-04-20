@@ -1,7 +1,55 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Home from "../pages/ShowTimes";
+import { useAuthContext } from "../hooks/useAuthContext";
+import LoginModal from "./LogInModal";
+import RegisterModal from "./RegisterModal";
+import useLocalStorage from "../hooks/useLocalStorage";
+import { logout } from "../api";
+import { useEffect, useState } from "react";
+import { useAuth } from "../hooks/useAuth";
+import jwtDecode from "jwt-decode";
 
 const Layout = ({ children }) => {
+
+    const navigate = useNavigate();
+
+    const context = useAuthContext();
+    const [role, setRole] = useState("");
+    const [error, setError] = useState();
+    const [response, setResponse] = useState();
+    const { logOut } = useAuth()
+
+    useEffect(() => {
+        if (context && context.user) {
+            setRole(jwtDecode(context.user.access_token).role);
+        }
+
+    }, [context])
+
+    const handleLogout = () => {
+        logout()
+            .then(response => {
+                if (!response.ok) {
+                    setError("Something went wrong, try again");
+                    return;
+                }
+                logOut();
+                setResponse("Successfuly logged out");
+            })
+            .catch(err => {
+                setError(err.message)
+            })
+        navigate("/");
+    }
+
+    const handleCloseInfo = () => {
+        handleCloseError();
+        handleCloseResponse();
+    }
+
+    const handleCloseResponse = () => setResponse(null);
+    const handleCloseError = () => setError(null);
+
     return (
         <>
             <div className="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -11,34 +59,72 @@ const Layout = ({ children }) => {
                         <span className="navbar-toggler-icon"></span>
                     </button>
                     <div className="collapse navbar-collapse ms-4" id="navbarResponsive">
-                        <ul className="navbar-nav fs-5">
+                        <ul className="navbar-nav fs-5" onClick={handleCloseError}>
                             <li className="nav-item">
                                 <Link className="nav-link" to="/">Show Times</Link>
                             </li>
                             <li className="nav-item">
                                 <Link className="nav-link" to="/movies">Movies</Link>
                             </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/admin">Admin</Link>
+                            {!!context.user && role === "ADMIN" && (
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/admin">Add Movie</Link>
 
-                            </li>
+                                </li>
+                            )}
+
                         </ul>
-                        {/* <ul className="navbar-nav ms-md-auto">
-                            <li className="nav-item">
-                                <a target="_blank" rel="noopener" className="nav-link" href="https://github.com/thomaspark/bootswatch/"><i className="bi bi-github"></i> GitHub</a>
-                            </li>
-                            <li className="nav-item">
-                                <a target="_blank" rel="noopener" className="nav-link" href="https://twitter.com/bootswatch"><i className="bi bi-twitter"></i> Twitter</a>
-                            </li>
-                        </ul> */}
+
+                        <ul className="navbar-nav ms-md-auto" onClick={handleCloseInfo}>
+                            {!context.user && (
+                                <>
+                                    <li className="nav-item">
+                                        <Link className="nav-link text-warning fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#loginModal">Log In</Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link className="nav-link text-warning fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#registerModal">Register</Link>
+                                    </li>
+                                </>
+                            )}
+                            {context.user && (<li className="nav-item">
+                                <Link onClick={handleLogout} className="nav-link text-warning fw-bold">Logout</Link>
+                            </li>)}
+
+                        </ul>
                     </div>
                 </div>
             </div>
 
             <main className="flex-shrink-0">
                 <div className="container mt-4">
+                    {error &&
+                        <div className="text-center d-flex justify-content-center mb-4">
+                            <div className="d-flex">
+                                <p className="p-2 m-0">{error}</p>
+                                <button onClick={handleCloseError} className="btn btn-sm btn-outline-light ms-4" >
+                                    <span onClick={handleCloseError} className="pb-0 m-0">X</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                    {response &&
+                        <div className="text-center d-flex justify-content-center mb-4">
+                            <div className="d-flex">
+                                <p className="p-2 m-0">{response}</p>
+                                <button onClick={handleCloseResponse} className="btn btn-sm btn-outline-light ms-4" >
+                                    <span onClick={handleCloseResponse} className="pb-0 m-0">X</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
                     {children}
                 </div>
+                {!context.user && (
+                    <>
+                        <RegisterModal />
+                        <LoginModal />
+                    </>
+                )}
             </main>
         </>
     )

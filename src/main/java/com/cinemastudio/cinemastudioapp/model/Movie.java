@@ -37,6 +37,9 @@ public class Movie {
     @Temporal(TemporalType.DATE)
     private Date premiere;
 
+    @Column(name = "is_displayed", columnDefinition = "boolean default false")
+    private boolean isDisplayed;
+
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ShowTime> showTimes;
 }

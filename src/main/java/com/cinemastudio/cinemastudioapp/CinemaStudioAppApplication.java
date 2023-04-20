@@ -40,7 +40,7 @@ public class CinemaStudioAppApplication {
                     .build();
 
             TicketType halfPrice = TicketType.builder()
-                    .name("half-price")
+                    .name("half_price")
                     .price(BigDecimal.valueOf(5))
                     .build();
 

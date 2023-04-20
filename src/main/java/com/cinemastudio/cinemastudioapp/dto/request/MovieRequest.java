@@ -31,6 +31,6 @@ public class MovieRequest {
     private String premiere;
 
     // String: new SimpleDateFormat("yyyy-M-dd hh:mm a", Locale.ENGLISH);
-    @NotEmpty(message = "Show times cannot be empty")
+    @NotNull(message = "Show times cannot be empty")
     private List<String> showTimes;
 }

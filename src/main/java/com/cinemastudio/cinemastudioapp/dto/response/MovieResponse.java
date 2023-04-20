@@ -14,12 +14,8 @@ public class MovieResponse {
     private String id;
     private String title;
     private int minutes;
-
     private String director;
-
     private String country;
-
     private Date premiere;
-
     private List<String> showTimes;
 }

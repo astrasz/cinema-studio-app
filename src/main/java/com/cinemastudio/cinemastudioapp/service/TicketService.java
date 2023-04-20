@@ -16,6 +16,8 @@ public interface TicketService {
 
     TicketResponse create(TicketRequest ticketRequest);
 
+    List<TicketResponse> createMany(List<TicketRequest> ticketRequestList);
+
     TicketResponse updateStatus(String ticketId, String status);
 
     String remove(String ticketId);

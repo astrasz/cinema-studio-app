@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getShowTimeById } from "../api";
+import { bookManyTickets, getShowTimeById } from "../api";
 import Row from "../components/Row";
 import Seat from "../components/Seat";
 import SeatsLegend from "../components/SeatsLegend";
 import TicketsSummary from "../components/TicketsSummary";
+import ModalTip from "../components/ModalTip";
+import { useAuthContext } from "../hooks/useAuthContext";
 
 const ShowTimeSeats = () => {
     const params = useParams();
+    const context = useAuthContext();
 
     const [showTime, setShowTime] = useState("");
     const [seatsByRows, setSeatsByRows] = useState([]);
@@ -46,8 +49,6 @@ const ShowTimeSeats = () => {
         }
     }, [showTime])
 
-    // console.log('showTime', showTime);
-
     const addToSelectedSeats = (seat) => {
         const newSelected = [...selectedSeats];
         newSelected.push(seat);
@@ -60,6 +61,29 @@ const ShowTimeSeats = () => {
     }
 
     const toggleDiscount = () => setIsDiscount((prevState) => !prevState);
+
+    const bookSeats = () => {
+
+        if (!context.user) {
+            return;
+        }
+
+        const bookingList = selectedSeats.map(seat => {
+            return {
+                seatId: seat.seatId,
+                userId: "d44702a6-fc02-4735-9991-f550f9e86f52",
+                typeId: isDiscount ? seat.halfPriceId : seat.regularId
+            }
+        })
+        bookManyTickets(JSON.stringify(bookingList))
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(err => {
+                setError(err.message)
+            })
+    }
 
     return (
 
@@ -99,11 +123,11 @@ const ShowTimeSeats = () => {
                             isDiscount={isDiscount}
                             removeFromSelected={removeFromSelectedSeats}
                             toggleDiscount={toggleDiscount}
+                            bookSeats={bookSeats}
                         />
                     </div>
                 </div>
             </div>
-
         </div>
     )
 

@@ -14,4 +14,5 @@ public interface ApiAuthController {
     ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest userRequest);
 
     ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest authRequest);
+
 }

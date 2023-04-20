@@ -65,6 +65,7 @@ public class MovieServiceImpl implements MovieService {
 
         Map<String, String> propertiesForBuilder = checkAndReturnValuesForBuilder(movieRequest);
 
+
         try {
             Movie movie = Movie.builder()
                     .title(propertiesForBuilder.get("title"))

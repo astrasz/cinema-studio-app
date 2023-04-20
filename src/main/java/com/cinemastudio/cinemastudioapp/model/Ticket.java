@@ -19,7 +19,6 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-
     @Column(name = "status", columnDefinition = "varchar(32) default 'SOLD'")
     @Enumerated(value = EnumType.STRING)
     private TicketStatus status;
@@ -28,15 +27,11 @@ public class Ticket {
     @JoinColumn(name = "type_id", referencedColumnName = "id")
     private TicketType type;
 
-
     @OneToOne
     @JoinColumn(name = "seat_id", referencedColumnName = "id")
     private Seat seat;
 
-
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private ApiUser user;
-
-
 }

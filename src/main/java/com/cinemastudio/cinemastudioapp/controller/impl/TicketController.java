@@ -51,6 +51,11 @@ public class TicketController implements ApiController<TicketRequest, TicketResp
         return new ResponseEntity<>(ticketService.create(ticketRequest), HttpStatus.CREATED);
     }
 
+    @PostMapping("/many")
+    public ResponseEntity<List<TicketResponse>> createMany(@RequestBody List<@Valid TicketRequest> ticketRequestList) {
+        return new ResponseEntity<>(ticketService.createMany(ticketRequestList), HttpStatus.CREATED);
+    }
+
 
     @DeleteMapping("/{ticketId}")
     @Override
